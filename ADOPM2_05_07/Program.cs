@@ -32,11 +32,23 @@ namespace ADOPM2_05_07
         public class ClassPoint
         {
             public long X, Y;
+
+            public ClassPoint() { }
+            public ClassPoint(ClassPoint org)
+            {
+                X = org.X;
+                Y = org.Y;
+            }
+            public override string ToString()
+            {
+                return $"(X:{X} Y:{Y})";
+            }
         }
 
         static void Main(string[] args)
         {
-
+            #region Shallow and Deep copy comparison
+            Console.WriteLine("Shallow and Deep copy comparison");
             StructPoint sp1 = new StructPoint { X = 3, Y = 10 };
             StructPoint sp2 = new StructPoint { X = 30, Y = 100 };
 
@@ -52,17 +64,20 @@ namespace ADOPM2_05_07
             ClassPoint cp1 = new ClassPoint { X = 3, Y = 10 };
             ClassPoint cp2 = new ClassPoint { X = 30, Y = 100 };
 
-            cp2 = new ClassPoint { X = cp1.X, Y = cp1.Y };  // Deep copy
+            //cp2 = cp1;    //Shallow copy
+            //cp2 = new ClassPoint { X = cp1.X, Y = cp1.Y };  // Deep copy
+            cp2 = new ClassPoint(cp1);  //Deep copy using copy constructor
+            
             Console.WriteLine($"X: {cp2.X} Y: {cp2.Y}"); // 3, 10
             
             cp1.X = 7;
             cp1.Y = 17;
             Console.WriteLine($"X: {cp1.X} Y: {cp1.Y}"); // 7, 17
             Console.WriteLine($"X: {cp2.X} Y: {cp2.Y}"); // 3, 10
+            #endregion
 
-            Console.WriteLine();
-            Console.WriteLine();
-
+            #region Examples Clone and Copy gives shallow copy
+            Console.WriteLine("\n\nClone and Copy makes shallow copy");
             // Arrays of Value Type
             StructPoint[] structArr = { new StructPoint { X = 1, Y = 1 }, new StructPoint { X = 2, Y = 2 } };
             int[] intArr = { 1, 2, 3, 4 };
@@ -75,7 +90,7 @@ namespace ADOPM2_05_07
 
             //Now lets copy the arrays, modify an original element and compare and compare
             // Clone Value types
-            StructPoint[] structCopy = (StructPoint[]) structArr.Clone();
+            StructPoint[] structCopy = (StructPoint[])structArr.Clone();
             structArr[0].X = structArr[0].Y = 5;
             Console.WriteLine($"structCopy[0]: X = {structCopy[0].X}, Y = {structCopy[0].Y}"); // 1,1 
             Console.WriteLine($"structArr[0]: X = {structArr[0].X}, Y = {structArr[0].Y}");    // 5,5 
@@ -96,6 +111,57 @@ namespace ADOPM2_05_07
             strArr[1] = "slow";
             Console.WriteLine($"\nstrCopy[1] = {strCopy[1]}"); // quick !! 
             Console.WriteLine($"strArr[1] = {strArr[1]}");     // slow
+            #endregion
+
+            # region Demonstrate Deep copy using an array
+            Console.WriteLine("\nDemonstrate Deep copy using an array");
+            var rnd = new Random();
+            ClassPoint[] myArray = new ClassPoint[5];
+            for (int i = 0; i < myArray.Length; i++)
+            {
+                myArray[i] = new ClassPoint { X = rnd.Next(1, 100), Y = rnd.Next(1, 100) };
+            }
+
+            Console.WriteLine("myArray");
+            foreach (var item in myArray)
+            {
+                Console.Write($"{item} ");
+            }
+
+            //Shallow copy creates problems
+            ClassPoint[] myArrayCopy = (ClassPoint[])myArray.Clone();
+
+            //Deep copy using copy constructor
+            /*
+            ClassPoint[] myArrayCopy = new ClassPoint[myArray.Length];
+            for (int k = 0; k < myArray.Length; k++)
+            {
+                myArrayCopy[k] = new ClassPoint(myArray[k]);
+            }
+            */
+
+            Console.WriteLine("\nyArrayCopy");
+            foreach (var item in myArrayCopy)
+            {
+                Console.Write($"{item} ");
+            }
+            Console.WriteLine();
+
+            myArrayCopy[2].X = 1000;
+            myArrayCopy[2].Y = 1000;
+
+            Console.WriteLine("\nmyArray");
+            foreach (var item in myArray)
+            {
+                Console.Write($"{item} ");
+            }
+            Console.WriteLine("\nArrayCopy");
+            foreach (var item in myArrayCopy)
+            {
+                Console.Write($"{item} ");
+            }
+            Console.WriteLine();
+            #endregion
         }
     }
 }
